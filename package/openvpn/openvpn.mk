@@ -16,9 +16,16 @@ OPENVPN_CONF_OPTS = \
 	$(if $(BR2_STATIC_LIBS),--disable-plugins)
 OPENVPN_CONF_ENV = NETSTAT=/bin/netstat
 
+# openvpn 2.6.x bundles ovpn_dco_linux.h, which redeclares enums that kernel
+# >= 6.16 headers provide in linux/if_link.h (the ovpn module was mainlined),
+# breaking the build. Disable DCO on such headers until openvpn ships compat.
 ifeq ($(BR2_PACKAGE_LIBNL)$(BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_16),yy)
+ifeq ($(BR2_TOOLCHAIN_HEADERS_AT_LEAST_6_16),y)
+OPENVPN_CONF_OPTS += --disable-dco
+else
 OPENVPN_CONF_OPTS += --enable-dco
 OPENVPN_DEPENDENCIES += libnl
+endif
 else
 OPENVPN_CONF_OPTS += --disable-dco
 endif
