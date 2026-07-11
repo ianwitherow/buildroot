@@ -413,7 +413,9 @@ define MESA3D_GET_RUST_SUBMODULES
 			SOURCE_FILENAME=$$(sed -n 's/^source_filename[[:space:]]*=[[:space:]]*//p' $$WRAP_FILE); \
 			SOURCE_URL=$$(sed -n 's/^source_url[[:space:]]*=[[:space:]]*//p' $$WRAP_FILE); \
 			echo "Downloading $$WRAP_NAME crate: $$SOURCE_FILENAME from $$SOURCE_URL"; \
-			$(HOST_DIR)/usr/bin/curl --fail -L -o "$(@D)/subprojects/packagecache/$$SOURCE_FILENAME" "$$SOURCE_URL"; \
+			$(HOST_DIR)/usr/bin/curl --fail -L --retry 3 --retry-delay 2 \
+				-A "buildroot-batocera-mesa3d" \
+				-o "$(@D)/subprojects/packagecache/$$SOURCE_FILENAME" "$$SOURCE_URL"; \
 		done \
 	)
 endef
